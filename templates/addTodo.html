@@ -4,28 +4,32 @@
             <h5 class="modal-title">Add Todo</h5>
         </div>
         <div class="modal-body">
-            <form>
+             <form hx-post="/todo/add" method="post" hx-headers='{"Content-Type": "application/json"}' hx-ext='json-enc'hx-encoding="multipart/form-data">
                 <div class="form-group">
                     <label for="exampleInputEmail1">Team Member</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                    <input name="member" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter team member name">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Id</label>
+                    <input name="id" type="text" class="form-control" id="exampleInputPassword1" placeholder="Id">
                 </div>
                 <div class="form-group">
                     <label for="exampleInputPassword1">Task</label>
-                    <input type="text" class="form-control" id="exampleInputPassword1" placeholder="task details">
+                    <input name="todo" type="text" class="form-control" id="exampleInputPassword1" placeholder="task details">
                 </div>
                 <div class="form-group">
                     <label for="exampleInputPassword1">Priority</label>
-                    <select class="form-control" id="exampleFormControlSelect1">
-                        <option>Less Priority</option>
-                        <option>Middle Priority</option>
-                        <option>High Priority</option>
+                    <select class="form-control" name="priority" id="exampleFormControlSelect1">
+                        <option value="less">Less Priority</option>
+                        <option value="middle">Middle Priority</option>
+                        <option value="high">High Priority</option>
                     </select>
                 </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </form>
-        </div>
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
     </div>
 </div>
