@@ -1,10 +1,11 @@
+<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">Add Todo</h5>
         </div>
         <div class="modal-body">
-             <form hx-post="/todo/add" method="post" hx-headers='{"Content-Type": "application/json"}' hx-ext='json-enc'hx-encoding="multipart/form-data">
+             <form hx-post="/todo/add" hx-ext='json-enc'  >
                 <div class="form-group">
                     <label for="exampleInputEmail1">Team Member</label>
                     <input name="member" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter team member name">
