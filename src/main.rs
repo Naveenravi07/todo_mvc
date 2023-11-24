@@ -1,58 +1,66 @@
 mod templates;
-use std::sync::Arc;
-use libsql_client::{Config, Client};
+
+use axum::{extract::State, routing::get, Form, Router};
+use libsql_client::{Client, Config};
+use std::sync::{Arc, Mutex};
+use templates::{Addtodo, CreateTodo, Index};
 use tower_http::services::ServeDir;
-use axum::{ routing::get, Router, Form,extract::State};
-use templates::{Index, Addtodo, CreateTodo};
 
 async fn index() -> Index {
-    return Index{} 
+    Index {}
 }
 
 async fn addtodo() -> Addtodo {
-    return Addtodo{} 
+    Addtodo {}
 }
 
-async fn createtodo(State(state):State<AppState>,Form(data):Form<CreateTodo>) -> axum::response::Html<String>{
-    state.database.execute("INSERT INTO TODO (id,todo,completed,priority,member) VALUES (1,'hai',false,'high','vaasu')");
-    println!("{:?}",data);
-    format!(
-        r#"
-        <!doctype html>
-        <html>
-        <head>
-        <title>Book</title>
-        </head>
-        <body>
-        <h1>Book</h1>
-        </body>
-        </html>
-        "#,
-        ).into()
+async fn createtodo(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Form(data): Form<CreateTodo>,
+    ) -> axum::response::Html<String> {
+
+    println!("{:?}", data);
+    axum::response::Html(format!(
+            r#"
+            <!doctype html>
+            <html>
+            <head>
+            <title>Book</title>
+            </head>
+            <body>
+            <h1>Book</h1>
+            <!-- Add your form and other HTML content here -->
+            </body>
+            </html>
+            "#
+            ))
 }
 
-#[derive(Clone)]
-pub struct AppState{
-   pub database:Arc<Client>
+pub struct AppState {
+    pub database: Client,
 }
 
 #[tokio::main]
 async fn main() {
-    const DB_PATH : &str = "file:///home/shastri/deez/todo_mvc/todo.db";
-    let config = Config::new(DB_PATH).unwrap();
+    const DB_PATH: &str = "file:///home/shastri/deez/todo_mvc/todo.db";
+    let config = Config::new(DB_PATH).expect("Failed to create database configuration");
 
-    let db = Arc::new(libsql_client::Client::from_config(config).await.unwrap());
-    db.execute("CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, todo TEXT, completed BOOLEAN, priority TEXT, member TEXT)").await.unwrap();    
+    let db = libsql_client::Client::from_config(config)
+        .await
+        .expect("Failed to connect to the database");
+    db.execute("CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, todo TEXT, completed BOOLEAN, priority TEXT, member TEXT)").await.expect("Failed to create todos table");
+
+    let app_state = Arc::new(Mutex::new(AppState { database: db }));
 
     let app = Router::new()
-        .with_state(db.clone())
         .nest_service("/assets", ServeDir::new("assets"))
         .route("/", get(index))
-        .route("/todo/add", get(addtodo).post(createtodo));
+        .route("/todo/add", get(addtodo).post(createtodo))
+        .with_state(Arc::clone(&app_state));
 
-    axum::Server::bind(&"0.0.0.0:42069".parse().unwrap())
+    axum::Server::bind(&"0.0.0.0:42069".parse().expect("Invalid address"))
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .expect("Server failed to start");
 }
 
