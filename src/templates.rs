@@ -1,4 +1,5 @@
 use askama::Template;
+use serde::Deserialize;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -9,10 +10,10 @@ pub struct Index {}
 #[template(path = "addTodo.html")]
 pub struct Addtodo {}
 
-#[derive(Debug)]
+#[derive(Debug,Deserialize,)]
 pub struct CreateTodo {
-    id : u32,
-    todo : String,
-    priority : String,
-    member : String
+ pub   id : u32,
+ pub   todo : String,
+ pub   priority : String,
+ pub   member : String
 }
