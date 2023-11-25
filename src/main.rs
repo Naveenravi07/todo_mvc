@@ -23,24 +23,33 @@ async fn createtodo(
         .database
         .execute(Statement::with_args(
             "INSERT INTO todos (id,todo,member,priority,completed) VALUES (?,?,?,?,false)",
-            args!(data.id,data.todo,data.member,data.priority)
+            args!(data.id,&data.todo,&data.member,&data.priority)
             ))
         .await
         .unwrap();
 
     axum::response::Html(format!(
-        r#"
-            <!doctype html>
-            <html>
-            <head>
-            <title>Book</title>
-            </head>
-            <body>
-            <h1>Book</h1>
-            <!-- Add your form and other HTML content here -->
-            </body>
-            </html>
-            "#
+            r#"
+            <tr  class="fw-normal">
+            <th>
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-3.webp"
+            class="shadow-1-strong rounded-circle" alt="avatar 1"
+            style="width: 55px; height: auto;">
+            <span class="ms-2">{member}</span>
+            </th>
+            <td class="align-middle">{todo}</td>
+            <td class="align-middle">
+            <h6 class="mb-0"><span class="badge bg-danger">{priority}priority</span></h6>
+            </td>
+            <td class="align-middle">
+            <a  data-mdb-toggle="tooltip" title="Done"><i
+            class="fas fa-check text-success me-3"></i></a>
+            <a data-mdb-toggle="tooltip" title="Remove"><i
+            class="fas fa-trash-alt text-danger"></i></a>
+            </td>
+            </tr>
+            "#,
+            member=data.member,todo=data.todo,priority=data.priority
     ))
 }
 
@@ -51,7 +60,7 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
-    const DB_PATH: &str = "file:///home/shastri/balls/todo_mvc/todo.db";
+    const DB_PATH: &str = "file:///home/shastri/deez/todo_mvc/todo.db";
     let config = Config::new(DB_PATH).expect("Failed to create database configuration");
 
     let db = Arc::new(
