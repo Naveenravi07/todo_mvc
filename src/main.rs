@@ -1,12 +1,20 @@
 mod templates;
 use axum::{debug_handler, extract::State, routing::get, Form, Router};
-use libsql_client::{Client, Config, Statement, args};
+use libsql_client::{Client, Config, Statement, args, de};
 use std::sync::Arc;
 use templates::{Addtodo, CreateTodo, Index};
 use tower_http::services::ServeDir;
 
-async fn index() -> Index {
-    Index {}
+async fn index(State(state): State<AppState>) -> Index {
+    let todos = state
+        .database
+        .execute("SELECT * FROM todos")
+        .await
+        .unwrap();
+
+    let todos = todos.rows.iter().map(|item|de::from_row(item)).collect::<Result<Vec<CreateTodo>,_>>().unwrap();
+    print!("{:?}",todos);
+    Index {todos}
 }
 
 async fn addtodo() -> Addtodo {

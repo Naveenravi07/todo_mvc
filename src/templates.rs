@@ -3,7 +3,9 @@ use serde::Deserialize;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct Index {}
+pub struct Index {
+    pub todos : Vec<CreateTodo>
+}
 
 
 #[derive(Template)]
