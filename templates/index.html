@@ -27,7 +27,7 @@ Index
                             </thead>
                             <tbody id="todos_main">
                                 {%for todo in todos %}
-                                <tr class="fw-normal">
+                                <tr class="fw-normal" id="todo-{{todo.id}}">
                                     <th>
                                         <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-6.webp"
                                         class="shadow-1-strong rounded-circle" alt="avatar 1"
@@ -45,10 +45,7 @@ Index
                                         {% endif %}
                                     </td>
                                     <td class="align-middle">
-                                        <a href="#!" data-mdb-toggle="tooltip" title="Done"><i
-                                                class="fas fa-check text-success me-3"></i></a>
-                                        <a href="#!" data-mdb-toggle="tooltip" title="Remove"><i
-                                                class="fas fa-trash-alt text-danger"></i></a>
+                                        <button hx-delete="/todo/delete" hx-vals='{"id":{{todo.id}}}' hx-target="#todo-{{todo.id}}" >Delete </button>
                                     </td>
                                 </tr>
 
@@ -65,7 +62,7 @@ Index
                             hx-trigger="click" 
                             data-bs-toggle="modal" 
                             data-bs-target="#modals-here"
-                            class="btn btn-primary">Open Modal</button>
+                            class="btn btn-primary">Add Todo</button>
                     </div>
 
                     <div id="modals-here"

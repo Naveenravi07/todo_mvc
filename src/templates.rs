@@ -19,3 +19,7 @@ pub struct CreateTodo {
  pub   priority : String,
  pub   member : String
 }
+#[derive(Debug,Deserialize,)]
+pub struct DeleteTodo {
+ pub   id : u32,
+}

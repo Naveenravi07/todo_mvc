@@ -1,24 +1,46 @@
 mod templates;
-use axum::{debug_handler, extract::State, routing::get, Form, Router};
-use libsql_client::{Client, Config, Statement, args, de};
+use axum::{
+    debug_handler,
+    extract::State,
+    routing::{delete, get},
+    Form, Router,
+};
+use libsql_client::{args, de, Client, Config, Statement};
 use std::sync::Arc;
-use templates::{Addtodo, CreateTodo, Index};
+use templates::{Addtodo, CreateTodo, DeleteTodo, Index};
 use tower_http::services::ServeDir;
 
 async fn index(State(state): State<AppState>) -> Index {
-    let todos = state
-        .database
-        .execute("SELECT * FROM todos")
-        .await
-        .unwrap();
+    let todos = state.database.execute("SELECT * FROM todos").await.unwrap();
 
-    let todos = todos.rows.iter().map(|item|de::from_row(item)).collect::<Result<Vec<CreateTodo>,_>>().unwrap();
-    print!("{:?}",todos);
-    Index {todos}
+    let todos = todos
+        .rows
+        .iter()
+        .map(|item| de::from_row(item))
+        .collect::<Result<Vec<CreateTodo>, _>>()
+        .unwrap();
+    print!("{:?}", todos);
+    Index { todos }
 }
 
 async fn addtodo() -> Addtodo {
     Addtodo {}
+}
+
+async fn delete_todo(
+    State(state): State<AppState>,
+    Form(data): Form<DeleteTodo>,
+) -> axum::response::Html<String> {
+    state
+        .database
+        .execute(Statement::with_args(
+            "DELETE FROM todos WHERE id=?",
+            args!(data.id),
+        ))
+        .await
+        .unwrap();
+
+    axum::response::Html(format!(""))
 }
 
 #[debug_handler]
@@ -26,18 +48,17 @@ async fn createtodo(
     State(state): State<AppState>,
     Form(data): Form<CreateTodo>,
 ) -> axum::response::Html<String> {
-
     state
         .database
         .execute(Statement::with_args(
             "INSERT INTO todos (id,todo,member,priority,completed) VALUES (?,?,?,?,false)",
-            args!(data.id,&data.todo,&data.member,&data.priority)
-            ))
+            args!(data.id, &data.todo, &data.member, &data.priority),
+        ))
         .await
         .unwrap();
 
     axum::response::Html(format!(
-            r#"
+        r#"
             <tr  class="fw-normal">
             <th>
             <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-3.webp"
@@ -57,7 +78,9 @@ async fn createtodo(
             </td>
             </tr>
             "#,
-            member=data.member,todo=data.todo,priority=data.priority
+        member = data.member,
+        todo = data.todo,
+        priority = data.priority
     ))
 }
 
@@ -84,6 +107,7 @@ async fn main() {
         .nest_service("/assets", ServeDir::new("assets"))
         .route("/", get(index))
         .route("/todo/add", get(addtodo).post(createtodo))
+        .route("/todo/delete", delete(delete_todo))
         .with_state(app_state);
 
     axum::Server::bind(&"0.0.0.0:42069".parse().expect("Invalid address"))
