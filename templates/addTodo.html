@@ -1,22 +1,57 @@
-
-<div class="modal-dialog modal-dialog-centered" id="response-div" >
+<div class="modal-dialog modal-dialog-centered" id="response-div">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">Add Todo</h5>
+            {% match default_value %}
+            {% when Some (CreateTodo) %}
+            <h5 class="modal-title">Edit Todo</h5>
+            {% when None %}
+            <h5 class="modal-title"> Add Todo </h5>
+            {% endmatch %}
         </div>
         <div class="modal-body">
-             <form hx-post="/todo/add"  hx-target="#todos_main" hx-swap="beforeend" >
+            <form hx-post="/todo/add" hx-target="#todos_main" hx-swap="beforeend">
+                {% match default_value %}
+                {% when Some (CreateTodo) %}
                 <div class="form-group">
                     <label for="exampleInputEmail1">Team Member</label>
-                    <input name="member" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter team member name">
+                    <input name="member" type="text" class="form-control" id="exampleInputEmail1"
+                        aria-describedby="emailHelp" value="{{CreateTodo.member}}" placeholder="Enter team member name">
                 </div>
+
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Id</label>
+                    <input name="id" type="text" value="{{CreateTodo.id}}" class="form-control"
+                        id="exampleInputPassword1" placeholder="Id">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Task</label>
+                    <input name="todo" type="text" value="{{CreateTodo.todo}}" class="form-control"
+                        id="exampleInputPassword1" placeholder="task details">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Priority</label>
+                    <select class="form-control" value="{{CreateTodo.priority}}" name="priority"
+                        id="exampleFormControlSelect1">
+                        <option value="less">Less Priority</option>
+                        <option value="middle">Middle Priority</option>
+                        <option value="high">High Priority</option>
+                    </select>
+                </div>
+                {% when None %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Team Member</label>
+                    <input name="member" type="text" class="form-control" id="exampleInputEmail1"
+                        aria-describedby="emailHelp" placeholder="Enter team member name">
+                </div>
+
                 <div class="form-group">
                     <label for="exampleInputPassword1">Id</label>
                     <input name="id" type="text" class="form-control" id="exampleInputPassword1" placeholder="Id">
                 </div>
                 <div class="form-group">
                     <label for="exampleInputPassword1">Task</label>
-                    <input name="todo" type="text" class="form-control" id="exampleInputPassword1" placeholder="task details">
+                    <input name="todo" type="text" class="form-control" id="exampleInputPassword1"
+                        placeholder="task details">
                 </div>
                 <div class="form-group">
                     <label for="exampleInputPassword1">Priority</label>
@@ -26,6 +61,7 @@
                         <option value="high">High Priority</option>
                     </select>
                 </div>
+                {% endmatch %}
                 <div class="modal-footer">
                     <button class="btn btn-primary">Submit</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

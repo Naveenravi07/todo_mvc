@@ -46,6 +46,9 @@ Index
                                     </td>
                                     <td class="align-middle">
                                         <button hx-delete="/todo/delete" hx-vals='{"id":{{todo.id}}}' hx-target="#todo-{{todo.id}}" >Delete </button>
+                                        <button hx-get="/todo/edit" hx-vals='{"id":{{todo.id}}}'
+                                            hx-trigger="click" data-bs-toggle="modal" data-bs-target="#modals-here" 
+                                            hx-target="#modals-here" >Edit </button>
                                     </td>
                                 </tr>
 

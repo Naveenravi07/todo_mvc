@@ -1,7 +1,7 @@
 mod templates;
 use axum::{
     debug_handler,
-    extract::State,
+    extract::{Query, State},
     routing::{delete, get},
     Form, Router,
 };
@@ -24,7 +24,24 @@ async fn index(State(state): State<AppState>) -> Index {
 }
 
 async fn addtodo() -> Addtodo {
-    Addtodo {}
+    Addtodo {
+        default_value: None,
+    }
+}
+async fn edit_todo(State(state): State<AppState>, Query(data): Query<DeleteTodo>) -> Addtodo {
+    let item = state
+        .database
+        .execute(Statement::with_args(
+            "SELECT * FROM todos WHERE id=?",
+            args!(data.id),
+        ))
+        .await
+        .unwrap();
+    let parsed = item.rows.first().unwrap();
+    let parsed_item = de::from_row::<CreateTodo>(parsed).unwrap();
+    Addtodo {
+        default_value: Some(parsed_item),
+    }
 }
 
 async fn delete_todo(
@@ -108,6 +125,7 @@ async fn main() {
         .route("/", get(index))
         .route("/todo/add", get(addtodo).post(createtodo))
         .route("/todo/delete", delete(delete_todo))
+        .route("/todo/edit", get(edit_todo))
         .with_state(app_state);
 
     axum::Server::bind(&"0.0.0.0:42069".parse().expect("Invalid address"))

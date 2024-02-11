@@ -10,7 +10,9 @@ pub struct Index {
 
 #[derive(Template)]
 #[template(path = "addTodo.html")]
-pub struct Addtodo {}
+pub struct Addtodo {
+    pub default_value: Option<CreateTodo>
+}
 
 #[derive(Debug,Deserialize,)]
 pub struct CreateTodo {
